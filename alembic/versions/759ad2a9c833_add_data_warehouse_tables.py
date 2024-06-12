@@ -61,12 +61,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['leaveIssuerId'], ['dim_users.userId'], ),
     sa.PrimaryKeyConstraint('leaveIssuerId')
     )
-    op.create_table('dim_designations',
-    sa.Column('id', sa.String(), nullable=False),
-    sa.Column('designationName', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['id'], ['dim_leave_types.designationId'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('fact_leave_requests',
     sa.Column('id', sa.Integer(), nullable=False, autoincrement=True),
     sa.Column('userId', sa.String(), nullable=True),
@@ -89,7 +83,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['leaveIssuerId'], ['dim_leave_issuer.leaveIssuerId'], ),
     sa.ForeignKeyConstraint(['currentLeaveIssuerId'], ['dim_leave_issuer.leaveIssuerId'], ),
     sa.ForeignKeyConstraint(['leaveTypeId'], ['dim_leave_types.leaveTypeId'], ),
-    sa.ForeignKeyConstraint(['userId'], ['dim_leave_types.userId'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
