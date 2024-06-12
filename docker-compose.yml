@@ -4,17 +4,19 @@ services:
   db:
     image: postgres:13
     environment:
-      POSTGRES_USER: root
+      POSTGRES_USER: leave_app_user
       POSTGRES_PASSWORD: leavevisualization123
       POSTGRES_DB: leave_visualization
     ports:
       - "5432:5432"
+
   app:
     build: .
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://root:leavevisualization123@db/leave_visualization
+      DATABASE_URL: postgresql://leave_app_user:leavevisualization123@db:5432/leave_visualization
     ports:
       - "8000:8000"
-    command: ["flask", "run", "--host=0.0.0.0", "--port=8000"]
+    volumes:
+      - .:/usr/src/app

@@ -4,3 +4,4 @@ Flask-Migrate
 psycopg2-binary
 alembic
 streamlit
+python-dotenv
