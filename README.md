@@ -35,6 +35,9 @@ leave-visualization-app/
 ├── setup.py
 └── README.md
 ```
+## Architecture Diagram
+![Leave Visualization App diagrams-architecture-diagram drawio](https://github.com/nischalbadal/leave-visualization-app/assets/23710553/a700c18d-feb8-4114-ba9d-01facd92ef70)
+
 
 ## Setup Instructions
 
