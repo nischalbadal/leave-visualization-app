@@ -12,7 +12,7 @@ The Employee Leave Visualization System is a comprehensive application designed 
 - Dockerized setup for easy deployment
 
 ## Project Structure
-
+```
 leave-visualization-app/
 ├── alembic/
 │ ├── versions/
@@ -34,7 +34,7 @@ leave-visualization-app/
 ├── run.py
 ├── setup.py
 └── README.md
-
+```
 
 ## Setup Instructions
 
@@ -83,7 +83,7 @@ leave-visualization-app/
     Open a new terminal and navigate to the project directory. Then run:
 
     ```sh
-    streamlit run streamlit_app.py
+    streamlit run streamlit_app/app.py
     ```
 
     Open your browser and navigate to the Streamlit app URL provided in the terminal (typically `http://localhost:8501`).
@@ -99,6 +99,13 @@ leave-visualization-app/
 - **Leaves by Department**: Bar chart showing the number of leaves taken in each department.
 - **Leaves by Month**: Line chart showing the number of leaves taken each month.
 - **Leave Status Distribution**: Pie chart showing the distribution of leave statuses.
+
+## Screenshots
+![Screenshot (13)](https://github.com/nischalbadal/leave-visualization-app/assets/23710553/91437619-dd07-434b-a568-56b144ff0372)
+![Screenshot (17)](https://github.com/nischalbadal/leave-visualization-app/assets/23710553/674862c0-1ae2-4f90-ae9d-a7377ab0c7f2)
+![Screenshot (16)](https://github.com/nischalbadal/leave-visualization-app/assets/23710553/71670193-0676-4890-a3a6-91eb7693aa86)
+![Screenshot (15)](https://github.com/nischalbadal/leave-visualization-app/assets/23710553/fbb319d1-557c-4bbd-9750-5fa88d10d259)
+![Screenshot (14)](https://github.com/nischalbadal/leave-visualization-app/assets/23710553/dbb1e566-f6a1-49d2-ba7b-6b28ea4fee6d)
 
 ## Contributing
 
