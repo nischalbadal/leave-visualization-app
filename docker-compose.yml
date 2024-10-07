@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    build: ./app/backend  # Updated path to the backend Dockerfile
+    build: ./app/backend
     container_name: backend
     environment:
       - DB_USERNAME=${DB_USERNAME}
@@ -12,9 +12,14 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
       - "5000:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   frontend:
-    build: ./app/frontend  # Updated path to the Streamlit Dockerfile
+    build: ./app/frontend
     container_name: frontend
     environment:
       - API_URL=http://backend:5000

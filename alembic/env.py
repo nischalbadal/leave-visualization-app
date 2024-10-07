@@ -16,7 +16,7 @@ fileConfig(config.config_file_name)
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import your models
-from app.backend.models import UserAccount  # Adjust import based on your structure
+from app.backend.models import Designation, FiscalYear, LeaveType, Users, Allocation, LeaveRequest, UserAccount
 from app.backend.util import encode_password, escape_password
 # Target metadata for 'autogenerate' support
 target_metadata = UserAccount.metadata

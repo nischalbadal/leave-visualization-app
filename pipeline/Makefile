@@ -19,6 +19,6 @@ ingestion-bulk: build
 transformation: build
 	docker run --env-file $(ENV_FILE) --env DB_HOST=host.docker.internal $(IMAGE_NAME) transformation.py
 
-# Run the transformation process
+# Run the data transfer process
 data-transfer: build
 	docker run --env-file $(ENV_FILE) --env DB_HOST=host.docker.internal $(IMAGE_NAME) data-transfer.py

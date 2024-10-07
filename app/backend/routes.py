@@ -1,15 +1,18 @@
-# app/backend/routes.py
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
-from .models import UserAccount
-from . import db  # Import db from the package
+from .models import UserAccount, User
+from . import db
 from sqlalchemy import text
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
 api = Blueprint('api', __name__)
+
+@api.route('/health', methods=['GET'])
+def health_check():
+    return jsonify(status="healthy"), 200
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -60,3 +63,48 @@ def dashboard():
             "fact_leave_requests": [dict(row) for row in fact_leave_requests]
         }
     )
+
+@api.route('/employee/names', methods=['GET'])
+def get_employee_names():
+    employees = User.query.all()
+    employee_names = [
+        {
+            "userId": emp.userId,
+            "fullName": emp.fullName
+        }
+        for emp in employees
+    ]
+    return jsonify(employee_names), 200
+
+@api.route('/employee/<string:user_id>', methods=['GET'])
+def get_employee_details(user_id):
+    employee = User.query.filter_by(userId=user_id).first()
+    if not employee:
+        return jsonify({"msg": "Employee not found."}), 404
+
+    # leave_issuer = employee.leaveIssuer.leaveIssuerFullName
+
+    leave_records = employee.leave_requests
+    leave_data = [
+        {
+            "leaveTypeId": lr.leaveTypeId,
+            "leaveTypeName": lr.leave_type.leaveTypeName,
+            "status": lr.status,
+            "startDate": lr.startDate,
+            "endDate": lr.endDate,
+            "leaveDays": lr.leaveDays
+        }
+        for lr in leave_records
+    ]
+
+    return jsonify({
+        "employee_details": {
+            "userId": employee.userId,
+            "firstName": employee.firstName,
+            "middleName": employee.middleName,
+            "lastName": employee.lastName,
+            "email": employee.email,
+            "designationName": employee.designation.designationName if employee.designation else None,
+        },
+        "employee_leaves": leave_data
+    }), 200

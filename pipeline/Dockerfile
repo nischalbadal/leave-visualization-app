@@ -2,7 +2,7 @@ FROM python:3.9-slim
 
 WORKDIR /pipeline/src
 
-COPY src/requirements.txt /pipeline/src/requirements.txt
+COPY ../requirements.txt /pipeline/src/requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
 
