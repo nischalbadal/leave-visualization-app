@@ -10,7 +10,7 @@ load_dotenv()
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
-DB_USER = os.getenv('DB_USER')
+DB_USERNAME = os.getenv('DB_USERNAME')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 
 def connect_to_db():
@@ -18,7 +18,7 @@ def connect_to_db():
         host=DB_HOST,
         port=DB_PORT,
         dbname=DB_NAME,
-        user=DB_USER,
+        user=DB_USERNAME,
         password=DB_PASSWORD
     )
     return conn

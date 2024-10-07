@@ -2,53 +2,46 @@ from __future__ import with_statement
 import sys
 import os
 from logging.config import fileConfig
+from dotenv import load_dotenv 
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Load the Alembic configuration
 config = context.config
-
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
-# Add your model's MetaData object here
-# for 'autogenerate' support
-# from yourapp import mymodel
-# target_metadata = mymodel.Base.metadata
-
-# Importing the Base from models.py
+# Add the app directory to the Python path for imports
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
-from app.models import Base
 
-target_metadata = Base.metadata
+# Import your models
+from app.backend.models import UserAccount  # Adjust import based on your structure
+from app.backend.util import encode_password, escape_password
+# Target metadata for 'autogenerate' support
+target_metadata = UserAccount.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+load_dotenv()
 
-# Using DATABASE_URL from environment variable
-database_url = os.getenv('DATABASE_URL')
-if database_url:
+# Get database credentials from environment variables
+DB_USERNAME = os.getenv('DB_USERNAME')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
+
+encoded_password = encode_password(DB_PASSWORD)
+escaped_password = escape_password(encoded_password)
+
+# Construct the database URL using environment variables
+if all([DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
+    database_url = f'postgresql://{DB_USERNAME}:{escaped_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
     config.set_main_option('sqlalchemy.url', database_url)
+else:
+    raise ValueError("Database credentials not fully set. Please check your environment variables.")
 
 def run_migrations_offline():
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is also acceptable
-    here.  By skipping the Engine creation we don't even need
-    a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
+    """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -61,12 +54,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 def run_migrations_online():
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
+    """Run migrations in 'online' mode."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
@@ -75,12 +63,14 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata
         )
 
         with context.begin_transaction():
             context.run_migrations()
 
+# Determine if we are running in offline or online mode
 if context.is_offline_mode():
     run_migrations_offline()
 else:
