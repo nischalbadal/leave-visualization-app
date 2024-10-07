@@ -1,28 +1,12 @@
-import os
-import requests
 import psycopg2
 import json
-from dotenv import load_dotenv
 from datetime import datetime
+from config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
-# Load environment variables from .env file
-load_dotenv()
 
-# PostgreSQL database connection parameters from environment variables
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = os.getenv('DB_PORT')
-DB_NAME = os.getenv('DB_NAME')
-DB_USER = os.getenv('DB_USERNAME')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-
-# Function to insert data into the PostgreSQL database
-def insert_data_to_db(data, batch_size=1000, data_source='None'):
+def insert_data_to_db(data, batch_size=1000, data_source="None"):
     conn = psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
+        host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD
     )
     cursor = conn.cursor()
 
@@ -54,14 +38,45 @@ def insert_data_to_db(data, batch_size=1000, data_source='None'):
     def cast_types(record):
         # Define default values for missing keys
         defaults = {
-            'id': None, 'userId': None, 'empId': '', 'teamManagerId': None, 'designationId': None, 'designationName': '',
-            'firstName': '', 'middleName': '', 'lastName': '', 'email': '', 'isHr': False, 'isSupervisor': False,
-            'allocations': {}, 'leaveIssuerId': None, 'currentLeaveIssuerId': None, 'leaveIssuerFirstName': '',
-            'leaveIssuerLastName': '', 'currentLeaveIssuerEmail': '', 'departmentDescription': '', 'startDate': None,
-            'endDate': None, 'leaveDays': None, 'reason': '', 'status': '', 'remarks': '', 'leaveTypeId': None,
-            'leaveTypeName': '', 'defaultDays': None, 'transferableDays': None, 'isConsecutive': False, 'fiscalId': None,
-            'fiscalStartDate': None, 'fiscalEndDate': None, 'fiscalIsCurrent': False, 'createdAt': None, 'updatedAt': None,
-            'isConverted': False, 'dataSource': data_source, 'ingestedDateTime': datetime.now()
+            "id": None,
+            "userId": None,
+            "empId": "",
+            "teamManagerId": None,
+            "designationId": None,
+            "designationName": "",
+            "firstName": "",
+            "middleName": "",
+            "lastName": "",
+            "email": "",
+            "isHr": False,
+            "isSupervisor": False,
+            "allocations": {},
+            "leaveIssuerId": None,
+            "currentLeaveIssuerId": None,
+            "leaveIssuerFirstName": "",
+            "leaveIssuerLastName": "",
+            "currentLeaveIssuerEmail": "",
+            "departmentDescription": "",
+            "startDate": None,
+            "endDate": None,
+            "leaveDays": None,
+            "reason": "",
+            "status": "",
+            "remarks": "",
+            "leaveTypeId": None,
+            "leaveTypeName": "",
+            "defaultDays": None,
+            "transferableDays": None,
+            "isConsecutive": False,
+            "fiscalId": None,
+            "fiscalStartDate": None,
+            "fiscalEndDate": None,
+            "fiscalIsCurrent": False,
+            "createdAt": None,
+            "updatedAt": None,
+            "isConverted": False,
+            "dataSource": data_source,
+            "ingestedDateTime": datetime.now(),
         }
 
         # Use default values for missing keys
@@ -70,16 +85,25 @@ def insert_data_to_db(data, batch_size=1000, data_source='None'):
                 record[key] = defaults[key]
 
         # Convert boolean fields
-        record['isHr'] = bool(int(record.get('isHr', 0)))
-        record['isSupervisor'] = bool(int(record.get('isSupervisor', 0)))
-        record['isConsecutive'] = bool(int(record.get('isConsecutive', 0)))
-        record['fiscalIsCurrent'] = bool(int(record.get('fiscalIsCurrent', 0)))
-        record['isConverted'] = bool(int(record.get('isConverted', 0)))
+        record["isHr"] = bool(int(record.get("isHr", 0)))
+        record["isSupervisor"] = bool(int(record.get("isSupervisor", 0)))
+        record["isConsecutive"] = bool(int(record.get("isConsecutive", 0)))
+        record["fiscalIsCurrent"] = bool(int(record.get("fiscalIsCurrent", 0)))
+        record["isConverted"] = bool(int(record.get("isConverted", 0)))
 
         # Ensure integer fields are cast correctly
         int_fields = [
-            'id', 'userId', 'teamManagerId', 'designationId', 'leaveIssuerId',
-            'currentLeaveIssuerId', 'leaveTypeId', 'defaultDays', 'transferableDays', 'fiscalId', 'leaveDays'
+            "id",
+            "userId",
+            "teamManagerId",
+            "designationId",
+            "leaveIssuerId",
+            "currentLeaveIssuerId",
+            "leaveTypeId",
+            "defaultDays",
+            "transferableDays",
+            "fiscalId",
+            "leaveDays",
         ]
         for field in int_fields:
             if field in record and record[field] is not None:
@@ -87,40 +111,59 @@ def insert_data_to_db(data, batch_size=1000, data_source='None'):
 
         # Ensure string fields are cast correctly
         str_fields = [
-            'empId', 'designationName', 'firstName', 'middleName', 'lastName', 'email',
-            'leaveIssuerFirstName', 'leaveIssuerLastName', 'currentLeaveIssuerEmail', 'departmentDescription',
-            'reason', 'status', 'remarks', 'leaveTypeName', 'dataSource'
+            "empId",
+            "designationName",
+            "firstName",
+            "middleName",
+            "lastName",
+            "email",
+            "leaveIssuerFirstName",
+            "leaveIssuerLastName",
+            "currentLeaveIssuerEmail",
+            "departmentDescription",
+            "reason",
+            "status",
+            "remarks",
+            "leaveTypeName",
+            "dataSource",
         ]
         for field in str_fields:
             if field in record and record[field] is not None:
                 record[field] = str(record[field])
 
         # Ensure JSON fields are cast correctly
-        json_fields = ['allocations']
+        json_fields = ["allocations"]
         for field in json_fields:
             if field in record and record[field] is not None:
                 record[field] = json.dumps(record[field])  # Convert dict to JSON string
 
         # Ensure datetime fields are cast correctly
-        datetime_fields = ['startDate', 'endDate', 'fiscalStartDate', 'fiscalEndDate', 'createdAt', 'updatedAt']
+        datetime_fields = [
+            "startDate",
+            "endDate",
+            "fiscalStartDate",
+            "fiscalEndDate",
+            "createdAt",
+            "updatedAt",
+        ]
         for field in datetime_fields:
             if field in record and record[field] is not None:
-                record[field] = datetime.fromisoformat(record[field].replace('Z', '+00:00'))
+                record[field] = datetime.fromisoformat(
+                    record[field].replace("Z", "+00:00")
+                )
 
         # Add current timestamp for ingestedDateTime
-        record['ingestedDateTime'] = datetime.now()
+        record["ingestedDateTime"] = datetime.now()
 
         return record
 
-    # Process data in batches
     for i in range(0, len(data), batch_size):
-
-        batch = data[i:i + batch_size]
+        batch = data[i : i + batch_size]
         for record in batch:
             record = cast_types(record)
             cursor.execute(insert_query, record)
         print(f"Batch size: {i} inserted successfully.")
-        conn.commit()  # Commit the transaction for the current batch
+        conn.commit()
 
     cursor.close()
     conn.close()
