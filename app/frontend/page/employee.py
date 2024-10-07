@@ -2,8 +2,7 @@ import streamlit as st
 import requests
 import plotly.express as px
 import pandas as pd
-from frontend.config import API_URL
-
+from config import API_URL
 
 def main():
     def get_jwt_token():

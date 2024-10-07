@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-from page import employee, top_visualization
+from page import employee, top_visualization, custom
 from config import API_URL
 
 
@@ -32,7 +32,7 @@ def show_login():
     st.subheader("Login")
 
     with st.form(key="login_form"):
-        email = st.text_input("Email", placeholder="Enter your email")
+        email = st.text_input("Email or Username", placeholder="Enter your email or username")
         password = st.text_input(
             "Password", type="password", placeholder="Enter your password"
         )
@@ -45,6 +45,7 @@ def show_login():
 
             if response.status_code == 200:
                 st.session_state.token = response.json().get("access_token")
+                print(response.json())
                 st.session_state.page = "dashboard"
                 st.success("Login successful! You can now access the dashboard.")
                 st.experimental_set_query_params(page="dashboard")
@@ -56,7 +57,7 @@ def show_register():
     st.subheader("Register")
 
     with st.form(key="register_form"):
-        email = st.text_input("Email", placeholder="Enter your email")
+        email = st.text_input("Email or Username", placeholder="Enter your email or username")
         password = st.text_input(
             "Password", type="password", placeholder="Enter your password"
         )
@@ -89,6 +90,8 @@ def show_dashboard():
 
     with top_visualizations:
         top_visualization.main()
+    with custom_visualizations:
+        custom.main()
     with employee_profile:
         employee.main()
 

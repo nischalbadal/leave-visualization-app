@@ -25,7 +25,7 @@ def load_data_from_file(file_name):
         print(f"The file uploaded is: {file_name}")
         data = read_data_from_json(file_name)
         if data:
-            insert_data_to_db(data["data"], batch_size=1000, data_source="File")
+            insert_data_to_db(data["data"], batch_size=1000, data_source="File", file_name=file_name)
         else:
             print("No data loaded.")
 

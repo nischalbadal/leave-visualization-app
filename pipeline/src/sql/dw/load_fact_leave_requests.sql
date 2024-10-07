@@ -27,19 +27,6 @@ SELECT id, "userId", "leaveIssuerId", "leaveDays", "leaveTypeId", "currentLeaveI
     "departmentDescription", "startDate", "endDate",
     reason, status, remarks, "createdAt", "updatedAt", "isConverted", "fiscalId"
 FROM upsert
-ON CONFLICT (id) DO UPDATE
-SET "userId" = EXCLUDED."userId",
-    "leaveIssuerId" = EXCLUDED."leaveIssuerId",
-    "leaveDays" = EXCLUDED."leaveDays",
-    "leaveTypeId" = EXCLUDED."leaveTypeId",
-    "currentLeaveIssuerId" = EXCLUDED."currentLeaveIssuerId",
-    "departmentDescription" = EXCLUDED."departmentDescription",
-    "startDate" = EXCLUDED."startDate",
-    "endDate" = EXCLUDED."endDate",
-    reason = EXCLUDED.reason,
-    status = EXCLUDED.status,
-    remarks = EXCLUDED.remarks,
-    "createdAt" = EXCLUDED."createdAt",
-    "updatedAt" = EXCLUDED."updatedAt",
-    "isConverted" = EXCLUDED."isConverted",
-    "fiscalId" = EXCLUDED."fiscalId";
+WHERE NOT EXISTS (
+    SELECT 1 FROM fact_leave_requests WHERE id = upsert.id
+);

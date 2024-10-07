@@ -13,6 +13,6 @@ INSERT INTO dim_leave_issuer ("leaveIssuerId", "leaveIssuerFirstName", "leaveIss
 SELECT "leaveIssuerId", "leaveIssuerFirstName", "leaveIssuerLastName", "currentLeaveIssuerEmail"
 FROM upsert
 ON CONFLICT ("leaveIssuerId") DO UPDATE
-SET "leaveIssuerFirstName" = EXCLUDED."leaveIssuerFirstName",
-    "leaveIssuerLastName" = EXCLUDED."leaveIssuerLastName",
-    "leaveIssuerEmail" = EXCLUDED."leaveIssuerEmail";
+SET "leaveIssuerFirstName" = COALESCE(EXCLUDED."leaveIssuerFirstName", dim_leave_issuer."leaveIssuerFirstName"),
+    "leaveIssuerLastName" = COALESCE(EXCLUDED."leaveIssuerLastName", dim_leave_issuer."leaveIssuerLastName"),
+    "leaveIssuerEmail" = COALESCE(EXCLUDED."leaveIssuerEmail", dim_leave_issuer."leaveIssuerEmail");

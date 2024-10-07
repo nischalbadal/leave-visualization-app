@@ -2,7 +2,7 @@ import os
 import psycopg2
 import json
 from config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-
+from utils import log_pipeline_run
 
 def connect_to_db():
     conn = psycopg2.connect(
@@ -91,9 +91,11 @@ def main():
         print(f"Loading data to allocations table;")
         fetch_distinct_allocations(conn)
         print("Data load successful.")
+        log_pipeline_run(conn, f"transformation", 'COMPLETED', 'raw_leave_data')
 
     except psycopg2.Error as e:
         print(f"Error loading data into 'allocations' table: {e}")
+        log_pipeline_run(conn, f"transformation", 'FAILED', 'raw_leave_data')
         conn.rollback()
     finally:
         conn.close()

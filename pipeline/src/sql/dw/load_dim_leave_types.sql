@@ -6,7 +6,7 @@ INSERT INTO dim_leave_types ("leaveTypeId", "leaveTypeName", "defaultDays", "tra
 SELECT "leaveTypeId", "leaveTypeName", "defaultDays", "transferableDays", "isConsecutive"
 FROM upsert
 ON CONFLICT ("leaveTypeId") DO UPDATE
-SET "leaveTypeName" = EXCLUDED."leaveTypeName",
+SET "leaveTypeName" = COALESCE(EXCLUDED."leaveTypeName", dim_leave_types."leaveTypeName"),
     "defaultDays" = EXCLUDED."defaultDays",
     "transferableDays" = EXCLUDED."transferableDays",
     "isConsecutive" = EXCLUDED."isConsecutive";

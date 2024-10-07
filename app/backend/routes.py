@@ -135,3 +135,65 @@ def get_employee_details(user_id):
         ),
         200,
     )
+
+@api.route('/tables', methods=['GET'])
+def get_tables():
+    return jsonify({
+        "tables": [
+            "dim_users",
+            "dim_designations",
+            "dim_fiscal_periods",
+            "dim_leave_types",
+            "dim_leave_issuer"
+        ]
+    })
+
+@api.route('/table/<table_name>', methods=['GET'])
+def get_table_data(table_name):
+    try:
+        with db.engine.connect() as conn:
+            # Base query from the fact table (selecting all columns from fact_leave_requests)
+            query = 'select flr.id, flr."departmentDescription", flr."startDate", flr."endDate", flr."leaveDays", flr.reason, flr.status, flr."isConverted", '
+
+            # Define a dictionary to map table names to corresponding join conditions and select fields
+            join_conditions = {
+                'dim_users': {
+                    'join': 'JOIN dim_users du ON flr."userId" = du."userId"',
+                    'columns': 'du."userId", du."empId", du."teamManagerId", du."firstName", du."middleName", du."lastName", du.email, du."isHr", du."isSupervisor"'
+                },
+                'dim_designations': {
+                    'join': 'JOIN dim_users du ON flr."userId" = du."userId" '
+                            'JOIN dim_designations dd ON du."designationId" = dd."designationId"',
+                    'columns': 'du."userId", du."empId", du."teamManagerId", du."firstName", du."middleName", du."lastName", du.email, du."isHr", du."isSupervisor",dd."designationName" '
+                },
+                'dim_fiscal_periods': {
+                    'join': 'JOIN dim_fiscal_periods dfp ON flr."fiscalId" = dfp."fiscalId"',
+                    'columns': 'dfp."fiscalStartDate", dfp."fiscalEndDate", dfp."fiscalIsCurrent" '
+                },
+                'dim_leave_types': {
+                    'join': 'JOIN dim_leave_types dlt ON flr."leaveTypeId" = dlt."leaveTypeId"',
+                    'columns': 'dlt."leaveTypeName", dlt."defaultDays", dlt."transferableDays", dlt."isConsecutive"'
+                },
+                'dim_leave_issuer': {
+                    'join': 'JOIN dim_leave_issuer dli ON flr."leaveIssuerId" = dli."leaveIssuerId"',
+                    'columns': 'dli."leaveIssuerFirstName" , dli."leaveIssuerLastName", dli."leaveIssuerEmail" '
+                }
+            }
+
+            if table_name in join_conditions:
+                query += join_conditions[table_name]['columns'] + ' '
+                query += 'FROM fact_leave_requests flr ' + join_conditions[table_name]['join']
+            else:
+                return jsonify({"error": "Invalid table name"}), 400
+
+            query_result = conn.execute(text(query)).fetchall()
+
+        result = [dict(row._mapping) for row in query_result]
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
