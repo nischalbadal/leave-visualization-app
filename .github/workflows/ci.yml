@@ -1,0 +1,99 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install-dependencies:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        directory: [frontend, backend]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        cd app/${{ matrix.directory }}
+        pip install -r requirements.txt
+
+  lint-and-test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+
+    - name: Install backend dependencies
+      run: |
+        cd app/backend
+        pip install -r requirements.txt
+
+    - name: Format backend code with Black
+      run: |
+        cd app/backend
+        black --check .
+
+  lint-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install frontend dependencies
+      run: |
+        cd app/frontend
+        pip install -r requirements.txt
+
+    - name: Format frontend code with Black
+      run: |
+        cd app/frontend
+        black --check .
+
+  lint-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install pipeline dependencies
+      run: |
+        cd pipeline
+        pip install -r requirements.txt
+
+    - name: Format pipeline code with Black
+      run: |
+        cd pipeline
+        black --check .
+
+  build-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build Docker Image
+      run: |
+        cd pipeline
+        docker build -t data-pipeline .

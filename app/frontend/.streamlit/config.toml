@@ -1,0 +1,8 @@
+[browser]
+showWarningOnDirectExecution = false
+
+[server]
+enableXsrfProtection = false
+
+[ui]
+hideMenuButton = true
