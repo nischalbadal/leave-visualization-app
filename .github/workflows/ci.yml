@@ -68,3 +68,32 @@ jobs:
       run: |
         cd app/frontend
         black --check .
+
+  lint-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install pipeline dependencies
+      run: |
+        cd pipeline
+        pip install -r requirements.txt
+
+    - name: Format pipeline code with Black
+      run: |
+        cd pipeline
+        black --check .
+
+  build-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build Docker Image
+      run: |
+        cd pipeline
+        docker build -t data-pipeline .
