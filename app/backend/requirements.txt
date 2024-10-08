@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 Flask-JWT-Extended
 python-dotenv
 psycopg2-binary
+black

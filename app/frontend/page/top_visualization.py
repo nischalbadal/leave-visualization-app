@@ -191,32 +191,6 @@ def main():
             )
             st.plotly_chart(fig_box)
 
-        # Heatmap
-        st.subheader("Leave Requests Heatmap by Leave Type and Status")
-        not_approved_or_rejected = fact_leave_requests_df[
-            (fact_leave_requests_df["status"] != "Approved")
-            & (fact_leave_requests_df["status"] != "Rejected")
-        ]
-        heatmap_data = (
-            fact_leave_requests_df.groupby(["leaveTypeId", "status"])
-            .size()
-            .reset_index(name="count")
-        )
-
-        if not heatmap_data.empty:
-            heatmap_pivot = heatmap_data.pivot(
-                index="leaveTypeId", columns="status", values="count"
-            ).fillna(0)
-            fig_heatmap = px.imshow(
-                heatmap_pivot,
-                labels=dict(x="Status", y="Leave Type", color="Number of Requests"),
-                title="Heatmap of Leave Requests by Leave Type and Status",
-                color_continuous_scale="Viridis",
-            )
-            st.plotly_chart(fig_heatmap)
-        else:
-            st.write("No data available for the heatmap.")
-
     else:
         st.error(f"Failed to fetch data from the server.")
 

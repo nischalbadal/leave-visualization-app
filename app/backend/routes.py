@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from .models import UserAccount, User
 from . import db
 from sqlalchemy import text
@@ -44,6 +44,7 @@ def register():
 
 
 @api.route("/dashboard")
+@jwt_required()
 def dashboard():
     connection = db.engine.connect()
 
@@ -88,6 +89,7 @@ def dashboard():
 
 
 @api.route("/employee/names", methods=["GET"])
+@jwt_required()
 def get_employee_names():
     employees = User.query.all()
     employee_names = [
@@ -97,12 +99,11 @@ def get_employee_names():
 
 
 @api.route("/employee/<string:user_id>", methods=["GET"])
+@jwt_required()
 def get_employee_details(user_id):
     employee = User.query.filter_by(userId=user_id).first()
     if not employee:
         return jsonify({"msg": "Employee not found."}), 404
-
-    # leave_issuer = employee.leaveIssuer.leaveIssuerFullName
 
     leave_records = employee.leave_requests
     leave_data = [
@@ -136,7 +137,9 @@ def get_employee_details(user_id):
         200,
     )
 
+
 @api.route('/tables', methods=['GET'])
+@jwt_required()
 def get_tables():
     return jsonify({
         "tables": [
@@ -148,14 +151,14 @@ def get_tables():
         ]
     })
 
+
 @api.route('/table/<table_name>', methods=['GET'])
+@jwt_required()
 def get_table_data(table_name):
     try:
         with db.engine.connect() as conn:
-            # Base query from the fact table (selecting all columns from fact_leave_requests)
             query = 'select flr.id, flr."departmentDescription", flr."startDate", flr."endDate", flr."leaveDays", flr.reason, flr.status, flr."isConverted", '
 
-            # Define a dictionary to map table names to corresponding join conditions and select fields
             join_conditions = {
                 'dim_users': {
                     'join': 'JOIN dim_users du ON flr."userId" = du."userId"',
@@ -194,6 +197,3 @@ def get_table_data(table_name):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-
