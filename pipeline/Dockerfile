@@ -2,12 +2,14 @@ FROM python:3.9-slim
 
 WORKDIR /pipeline/src
 
-COPY src/requirements.txt /pipeline/src/requirements.txt
+COPY ../requirements.txt /pipeline/src/requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY files/ /pipeline/files/
 COPY src/ /pipeline/src/
+
+VOLUME /pipeline/qc_reports
 
 ARG DB_USERNAME
 ARG DB_PASSWORD

@@ -12,88 +12,115 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '759ad2a9c833'
-down_revision: Union[str, None] = '19e9f181c726'
+revision: str = "759ad2a9c833"
+down_revision: Union[str, None] = "19e9f181c726"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.create_table('dim_designations',
-    sa.Column('designationId', sa.String(), nullable=False),
-    sa.Column('designationName', sa.String(), nullable=True),
-    sa.PrimaryKeyConstraint('designationId')
+    op.create_table(
+        "dim_designations",
+        sa.Column("designationId", sa.String(), nullable=False),
+        sa.Column("designationName", sa.String(), nullable=True),
+        sa.PrimaryKeyConstraint("designationId"),
     )
-    op.create_table('dim_fiscal_periods',
-    sa.Column('fiscalId', sa.String(), nullable=False),
-    sa.Column('fiscalStartDate', sa.DateTime(), nullable=True),
-    sa.Column('fiscalEndDate', sa.DateTime(), nullable=True),
-    sa.Column('fiscalIsCurrent', sa.Boolean(), nullable=True),
-    sa.PrimaryKeyConstraint('fiscalId')
+    op.create_table(
+        "dim_fiscal_periods",
+        sa.Column("fiscalId", sa.String(), nullable=False),
+        sa.Column("fiscalStartDate", sa.DateTime(), nullable=True),
+        sa.Column("fiscalEndDate", sa.DateTime(), nullable=True),
+        sa.Column("fiscalIsCurrent", sa.Boolean(), nullable=True),
+        sa.PrimaryKeyConstraint("fiscalId"),
     )
-    op.create_table('dim_leave_types',
-    sa.Column('leaveTypeId', sa.String(), nullable=False),
-    sa.Column('leaveTypeName', sa.String(), nullable=True),
-    sa.Column('defaultDays', sa.Integer(), nullable=True),
-    sa.Column('transferableDays', sa.Integer(), nullable=True),
-    sa.Column('isConsecutive', sa.Boolean(), nullable=True),
-    sa.PrimaryKeyConstraint('leaveTypeId')
+    op.create_table(
+        "dim_leave_types",
+        sa.Column("leaveTypeId", sa.String(), nullable=False),
+        sa.Column("leaveTypeName", sa.String(), nullable=True),
+        sa.Column("defaultDays", sa.Integer(), nullable=True),
+        sa.Column("transferableDays", sa.Integer(), nullable=True),
+        sa.Column("isConsecutive", sa.Boolean(), nullable=True),
+        sa.PrimaryKeyConstraint("leaveTypeId"),
     )
-    op.create_table('dim_users',
-    sa.Column('userId', sa.String(), nullable=True),
-    sa.Column('empId', sa.String(), nullable=True),
-    sa.Column('teamManagerId', sa.String(), nullable=True),
-    sa.Column('firstName', sa.String(), nullable=True),
-    sa.Column('middleName', sa.String(), nullable=True),
-    sa.Column('lastName', sa.String(), nullable=True),
-    sa.Column('email', sa.String(), nullable=True),
-    sa.Column('isHr', sa.Boolean(), nullable=True),
-    sa.Column('isSupervisor', sa.Boolean(), nullable=True),
-    sa.Column('designationId', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['designationId'], ['dim_designations.designationId'], ),
-    sa.PrimaryKeyConstraint('userId')
+    op.create_table(
+        "dim_users",
+        sa.Column("userId", sa.String(), nullable=True),
+        sa.Column("empId", sa.String(), nullable=True),
+        sa.Column("teamManagerId", sa.String(), nullable=True),
+        sa.Column("firstName", sa.String(), nullable=True),
+        sa.Column("middleName", sa.String(), nullable=True),
+        sa.Column("lastName", sa.String(), nullable=True),
+        sa.Column("email", sa.String(), nullable=True),
+        sa.Column("isHr", sa.Boolean(), nullable=True),
+        sa.Column("isSupervisor", sa.Boolean(), nullable=True),
+        sa.Column("designationId", sa.String(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["designationId"],
+            ["dim_designations.designationId"],
+        ),
+        sa.PrimaryKeyConstraint("userId"),
     )
-    op.create_table('dim_leave_issuer',
-    sa.Column('leaveIssuerId', sa.String(), nullable=False),
-    sa.Column('leaveIssuerFirstName', sa.String(), nullable=True),
-    sa.Column('leaveIssuerLastName', sa.String(), nullable=True),
-    sa.Column('leaveIssuerEmail', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['leaveIssuerId'], ['dim_users.userId'], ),
-    sa.PrimaryKeyConstraint('leaveIssuerId')
+    op.create_table(
+        "dim_leave_issuer",
+        sa.Column("leaveIssuerId", sa.String(), nullable=False),
+        sa.Column("leaveIssuerFirstName", sa.String(), nullable=True),
+        sa.Column("leaveIssuerLastName", sa.String(), nullable=True),
+        sa.Column("leaveIssuerEmail", sa.String(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["leaveIssuerId"],
+            ["dim_users.userId"],
+        ),
+        sa.PrimaryKeyConstraint("leaveIssuerId"),
     )
-    op.create_table('fact_leave_requests',
-    sa.Column('id', sa.Integer(), nullable=False, autoincrement=True),
-    sa.Column('userId', sa.String(), nullable=True),
-    sa.Column('leaveIssuerId', sa.String(), nullable=True),
-    sa.Column('currentLeaveIssuerId', sa.String(), nullable=True),
-    sa.Column('departmentDescription', sa.String(), nullable=True),
-    sa.Column('startDate', sa.Date(), nullable=True),
-    sa.Column('endDate', sa.Date(), nullable=True),
-    sa.Column('leaveDays', sa.Integer(), nullable=True),
-    sa.Column('reason', sa.String(), nullable=True),
-    sa.Column('status', sa.String(), nullable=True),
-    sa.Column('remarks', sa.String(), nullable=True),
-    sa.Column('leaveTypeId', sa.String(), nullable=True),
-    sa.Column('createdAt', sa.DateTime(), nullable=True),
-    sa.Column('updatedAt', sa.DateTime(), nullable=True),
-    sa.Column('isConverted', sa.Boolean(), nullable=True),
-    sa.Column('fiscalId', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['fiscalId'], ['dim_fiscal_periods.fiscalId'], ),
-    sa.ForeignKeyConstraint(['leaveTypeId'], ['dim_leave_types.leaveTypeId'], ),
-    sa.ForeignKeyConstraint(['leaveIssuerId'], ['dim_leave_issuer.leaveIssuerId'], ),
-    sa.ForeignKeyConstraint(['currentLeaveIssuerId'], ['dim_leave_issuer.leaveIssuerId'], ),
-    sa.ForeignKeyConstraint(['leaveTypeId'], ['dim_leave_types.leaveTypeId'], ),
-    sa.PrimaryKeyConstraint('id')
+    op.create_table(
+        "fact_leave_requests",
+        sa.Column("id", sa.Integer(), nullable=False, autoincrement=True),
+        sa.Column("userId", sa.String(), nullable=True),
+        sa.Column("leaveIssuerId", sa.String(), nullable=True),
+        sa.Column("currentLeaveIssuerId", sa.String(), nullable=True),
+        sa.Column("departmentDescription", sa.String(), nullable=True),
+        sa.Column("startDate", sa.Date(), nullable=True),
+        sa.Column("endDate", sa.Date(), nullable=True),
+        sa.Column("leaveDays", sa.Integer(), nullable=True),
+        sa.Column("reason", sa.String(), nullable=True),
+        sa.Column("status", sa.String(), nullable=True),
+        sa.Column("remarks", sa.String(), nullable=True),
+        sa.Column("leaveTypeId", sa.String(), nullable=True),
+        sa.Column("createdAt", sa.DateTime(), nullable=True),
+        sa.Column("updatedAt", sa.DateTime(), nullable=True),
+        sa.Column("isConverted", sa.Boolean(), nullable=True),
+        sa.Column("fiscalId", sa.String(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["fiscalId"],
+            ["dim_fiscal_periods.fiscalId"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["leaveTypeId"],
+            ["dim_leave_types.leaveTypeId"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["leaveIssuerId"],
+            ["dim_leave_issuer.leaveIssuerId"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["currentLeaveIssuerId"],
+            ["dim_leave_issuer.leaveIssuerId"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["leaveTypeId"],
+            ["dim_leave_types.leaveTypeId"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('fact_leave_requests')
-    op.drop_table('dim_leave_issuer')
-    op.drop_table('dim_users')
-    op.drop_table('dim_leave_types')
-    op.drop_table('dim_fiscal_periods')
-    op.drop_table('dim_designations')
+    op.drop_table("fact_leave_requests")
+    op.drop_table("dim_leave_issuer")
+    op.drop_table("dim_users")
+    op.drop_table("dim_leave_types")
+    op.drop_table("dim_fiscal_periods")
+    op.drop_table("dim_designations")
     # ### end Alembic commands ###
