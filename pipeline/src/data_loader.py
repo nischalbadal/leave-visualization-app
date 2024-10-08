@@ -6,10 +6,14 @@ from config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from utils import log_pipeline_run
 
 
-def insert_data_to_db(data, batch_size=1000, data_source="None", file_name = "None"):
+def insert_data_to_db(data, batch_size=1000, data_source="None", file_name="None"):
     try:
         conn = psycopg2.connect(
-            host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD
+            host=DB_HOST,
+            port=DB_PORT,
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
         )
         cursor = conn.cursor()
 
@@ -138,7 +142,9 @@ def insert_data_to_db(data, batch_size=1000, data_source="None", file_name = "No
             json_fields = ["allocations"]
             for field in json_fields:
                 if field in record and record[field] is not None:
-                    record[field] = json.dumps(record[field])  # Convert dict to JSON string
+                    record[field] = json.dumps(
+                        record[field]
+                    )  # Convert dict to JSON string
 
             # Ensure datetime fields are cast correctly
             datetime_fields = [
@@ -161,17 +167,22 @@ def insert_data_to_db(data, batch_size=1000, data_source="None", file_name = "No
             return record
 
         for i in range(0, len(data), batch_size):
-            batch = data[i: i + batch_size]
+            batch = data[i : i + batch_size]
             for record in batch:
                 record = cast_types(record)
                 cursor.execute(insert_query, record)
             print(f"Batch size: {i} inserted successfully.")
             conn.commit()
 
-        log_pipeline_run(conn, f"ingestion-{data_source.lower()}", 'COMPLETED','api-data' if data_source.lower()=='api' else file_name)
+        log_pipeline_run(
+            conn,
+            f"ingestion-{data_source.lower()}",
+            "COMPLETED",
+            "api-data" if data_source.lower() == "api" else file_name,
+        )
 
     except Exception as e:
-        log_pipeline_run(conn, f"ingestion-{data_source.lower()}", 'FAILED', file_name)
+        log_pipeline_run(conn, f"ingestion-{data_source.lower()}", "FAILED", file_name)
         logging.error(f"Error inserting data into the database: {e}")
         if conn:
             conn.rollback()
@@ -180,5 +191,3 @@ def insert_data_to_db(data, batch_size=1000, data_source="None", file_name = "No
             cursor.close()
         if conn:
             conn.close()
-
-

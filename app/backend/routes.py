@@ -138,21 +138,23 @@ def get_employee_details(user_id):
     )
 
 
-@api.route('/tables', methods=['GET'])
+@api.route("/tables", methods=["GET"])
 @jwt_required()
 def get_tables():
-    return jsonify({
-        "tables": [
-            "dim_users",
-            "dim_designations",
-            "dim_fiscal_periods",
-            "dim_leave_types",
-            "dim_leave_issuer"
-        ]
-    })
+    return jsonify(
+        {
+            "tables": [
+                "dim_users",
+                "dim_designations",
+                "dim_fiscal_periods",
+                "dim_leave_types",
+                "dim_leave_issuer",
+            ]
+        }
+    )
 
 
-@api.route('/table/<table_name>', methods=['GET'])
+@api.route("/table/<table_name>", methods=["GET"])
 @jwt_required()
 def get_table_data(table_name):
     try:
@@ -160,32 +162,35 @@ def get_table_data(table_name):
             query = 'select flr.id, flr."departmentDescription", flr."startDate", flr."endDate", flr."leaveDays", flr.reason, flr.status, flr."isConverted", '
 
             join_conditions = {
-                'dim_users': {
-                    'join': 'JOIN dim_users du ON flr."userId" = du."userId"',
-                    'columns': 'du."userId", du."empId", du."teamManagerId", du."firstName", du."middleName", du."lastName", du.email, du."isHr", du."isSupervisor"'
+                "dim_users": {
+                    "join": 'JOIN dim_users du ON flr."userId" = du."userId"',
+                    "columns": 'du."userId", du."empId", du."teamManagerId", du."firstName", du."middleName", du."lastName", du.email, du."isHr", du."isSupervisor"',
                 },
-                'dim_designations': {
-                    'join': 'JOIN dim_users du ON flr."userId" = du."userId" '
-                            'JOIN dim_designations dd ON du."designationId" = dd."designationId"',
-                    'columns': 'du."userId", du."empId", du."teamManagerId", du."firstName", du."middleName", du."lastName", du.email, du."isHr", du."isSupervisor",dd."designationName" '
+                "dim_designations": {
+                    "join": 'JOIN dim_users du ON flr."userId" = du."userId" '
+                    'JOIN dim_designations dd ON du."designationId" = dd."designationId"',
+                    "columns": 'du."userId", du."empId", du."teamManagerId", du."firstName", du."middleName", du."lastName", du.email, du."isHr", du."isSupervisor",dd."designationName" ',
                 },
-                'dim_fiscal_periods': {
-                    'join': 'JOIN dim_fiscal_periods dfp ON flr."fiscalId" = dfp."fiscalId"',
-                    'columns': 'dfp."fiscalStartDate", dfp."fiscalEndDate", dfp."fiscalIsCurrent" '
+                "dim_fiscal_periods": {
+                    "join": 'JOIN dim_fiscal_periods dfp ON flr."fiscalId" = dfp."fiscalId"',
+                    "columns": 'dfp."fiscalStartDate", dfp."fiscalEndDate", dfp."fiscalIsCurrent" ',
                 },
-                'dim_leave_types': {
-                    'join': 'JOIN dim_leave_types dlt ON flr."leaveTypeId" = dlt."leaveTypeId"',
-                    'columns': 'dlt."leaveTypeName", dlt."defaultDays", dlt."transferableDays", dlt."isConsecutive"'
+                "dim_leave_types": {
+                    "join": 'JOIN dim_leave_types dlt ON flr."leaveTypeId" = dlt."leaveTypeId"',
+                    "columns": 'dlt."leaveTypeName", dlt."defaultDays", dlt."transferableDays", dlt."isConsecutive"',
                 },
-                'dim_leave_issuer': {
-                    'join': 'JOIN dim_leave_issuer dli ON flr."leaveIssuerId" = dli."leaveIssuerId"',
-                    'columns': 'dli."leaveIssuerFirstName" , dli."leaveIssuerLastName", dli."leaveIssuerEmail" '
-                }
+                "dim_leave_issuer": {
+                    "join": 'JOIN dim_leave_issuer dli ON flr."leaveIssuerId" = dli."leaveIssuerId"',
+                    "columns": 'dli."leaveIssuerFirstName" , dli."leaveIssuerLastName", dli."leaveIssuerEmail" ',
+                },
             }
 
             if table_name in join_conditions:
-                query += join_conditions[table_name]['columns'] + ' '
-                query += 'FROM fact_leave_requests flr ' + join_conditions[table_name]['join']
+                query += join_conditions[table_name]["columns"] + " "
+                query += (
+                    "FROM fact_leave_requests flr "
+                    + join_conditions[table_name]["join"]
+                )
             else:
                 return jsonify({"error": "Invalid table name"}), 400
 

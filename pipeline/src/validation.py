@@ -8,17 +8,19 @@ from datetime import datetime
 from config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 
 # Set up logging
-logging.basicConfig(filename='qc_reports/qc_report.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    filename="qc_reports/qc_report.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
 
 def create_connection():
     """Create a database connection."""
     return psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
+        host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD
     )
+
 
 def ingestion_qc_checks(conn):
     """Perform ingestion QC checks on the raw_leave_data table."""
@@ -33,7 +35,7 @@ def ingestion_qc_checks(conn):
         "duplicate_empId_count": "duplicate_emp_ids_count",
         "negative_leave_days_count": "negative_leave_days_count",
         "invalid_email_count": "invalid_email_count",
-        "invalid_date_range_count": "invalid_date_range_count"
+        "invalid_date_range_count": "invalid_date_range_count",
     }
 
     with conn.cursor() as cur:
@@ -57,7 +59,9 @@ def ingestion_qc_checks(conn):
         query = 'SELECT COUNT(*) FROM raw_leave_data WHERE "leaveDays" < 0;'
         cur.execute(query)
         negative_leave_days_count = cur.fetchone()[0]
-        report[friendly_field_names["negative_leave_days_count"]] = negative_leave_days_count
+        report[
+            friendly_field_names["negative_leave_days_count"]
+        ] = negative_leave_days_count
 
         # Check for valid email format
         query = """
@@ -75,10 +79,13 @@ def ingestion_qc_checks(conn):
         """
         cur.execute(query)
         invalid_date_range_count = cur.fetchone()[0]
-        report[friendly_field_names["invalid_date_range_count"]] = invalid_date_range_count
+        report[
+            friendly_field_names["invalid_date_range_count"]
+        ] = invalid_date_range_count
 
     logging.info("Ingestion QC checks completed.")
     return report
+
 
 def transformation_qc_checks(conn):
     """Perform transformation QC checks on various tables."""
@@ -182,7 +189,9 @@ def transformation_qc_checks(conn):
         """
         cur.execute(query)
         negative_leave_days_count = cur.fetchone()[0]
-        report["negative_leave_days_count_in_leave_requests"] = negative_leave_days_count
+        report[
+            "negative_leave_days_count_in_leave_requests"
+        ] = negative_leave_days_count
 
     logging.info("Transformation QC checks completed.")
     return report
@@ -201,10 +210,14 @@ def data_transfer_qc_checks(conn):
         report["null_designationId_count"] = cur.fetchone()[0]
 
         # Check for duplicate designationIds
-        query = 'SELECT COUNT(DISTINCT "designationId"), COUNT(*) FROM dim_designations;'
+        query = (
+            'SELECT COUNT(DISTINCT "designationId"), COUNT(*) FROM dim_designations;'
+        )
         cur.execute(query)
         distinct_designationId_count, total_count = cur.fetchone()
-        report["duplicate_designationId_count"] = total_count - distinct_designationId_count
+        report["duplicate_designationId_count"] = (
+            total_count - distinct_designationId_count
+        )
 
         # QC checks for dim_fiscal_periods table
         # Check for null values in required fields
@@ -258,10 +271,14 @@ def data_transfer_qc_checks(conn):
         report["null_leaveIssuerId_count"] = cur.fetchone()[0]
 
         # Check for duplicate leaveIssuerIds
-        query = 'SELECT COUNT(DISTINCT "leaveIssuerId"), COUNT(*) FROM dim_leave_issuer;'
+        query = (
+            'SELECT COUNT(DISTINCT "leaveIssuerId"), COUNT(*) FROM dim_leave_issuer;'
+        )
         cur.execute(query)
         distinct_leaveIssuerId_count, total_count = cur.fetchone()
-        report["duplicate_leaveIssuerId_count"] = total_count - distinct_leaveIssuerId_count
+        report["duplicate_leaveIssuerId_count"] = (
+            total_count - distinct_leaveIssuerId_count
+        )
 
         # QC checks for fact_leave_requests table
         # Check for null values in required fields
@@ -301,18 +318,23 @@ def data_transfer_qc_checks(conn):
     logging.info("Data transfer QC checks completed.")
     return report
 
+
 def log_qc_report(conn, qc_name, qc_json):
     qc_report = {
-        'qc_name': qc_name,
-        'qc_json': json.dumps(qc_json),
-        'created_timestamp': datetime.now()
+        "qc_name": qc_name,
+        "qc_json": json.dumps(qc_json),
+        "created_timestamp": datetime.now(),
     }
 
     try:
         with conn.cursor() as cur:
             cur.execute(
                 "INSERT INTO qc_reports (qc_name, qc_json, created_timestamp) VALUES (%s, %s, %s)",
-                (qc_report['qc_name'], qc_report['qc_json'], qc_report['created_timestamp'])
+                (
+                    qc_report["qc_name"],
+                    qc_report["qc_json"],
+                    qc_report["created_timestamp"],
+                ),
             )
             conn.commit()
             print(f"QC successful. Report generated {qc_report}.")
@@ -324,28 +346,34 @@ def log_qc_report(conn, qc_name, qc_json):
 
 def save_report(report, report_type):
     """Save the QC report as a JSON file."""
-    os.makedirs('qc_reports', exist_ok=True)
+    os.makedirs("qc_reports", exist_ok=True)
     report_filename = f"qc_reports/{report_type}_qc_report.json"
-    with open(report_filename, 'w') as json_file:
+    with open(report_filename, "w") as json_file:
         json.dump(report, json_file, indent=4)
     logging.info(f"QC report saved to {report_filename}")
 
+
 def main():
     """Main function to execute QC checks."""
-    parser = argparse.ArgumentParser(description='Perform QC checks on the database.')
-    parser.add_argument('--type', choices=['ingestion', 'transformation', 'data-transfer'], required=True, help='Type of QC check to perform.')
+    parser = argparse.ArgumentParser(description="Perform QC checks on the database.")
+    parser.add_argument(
+        "--type",
+        choices=["ingestion", "transformation", "data-transfer"],
+        required=True,
+        help="Type of QC check to perform.",
+    )
     args = parser.parse_args()
 
     try:
         conn = create_connection()
         report = {}
-        if args.type == 'ingestion':
+        if args.type == "ingestion":
             report = ingestion_qc_checks(conn)
-        elif args.type == 'transformation':
+        elif args.type == "transformation":
             report = transformation_qc_checks(conn)
-        elif args.type == 'data-transfer':
+        elif args.type == "data-transfer":
             report = data_transfer_qc_checks(conn)
-        
+
         save_report(report, args.type)
 
         log_qc_report(conn, args.type, report)
@@ -355,6 +383,7 @@ def main():
     finally:
         if conn:
             conn.close()
+
 
 if __name__ == "__main__":
     main()

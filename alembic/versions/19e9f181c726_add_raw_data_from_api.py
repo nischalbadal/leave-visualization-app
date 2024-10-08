@@ -66,8 +66,13 @@ def upgrade():
             nullable=True,
             server_default=sa.func.current_timestamp(),
         ),
-        sa.Column("valid_from", sa.DateTime, nullable=False, server_default=sa.func.current_timestamp()),
-        sa.Column("valid_to", sa.DateTime, nullable=False, server_default='infinity'),
+        sa.Column(
+            "valid_from",
+            sa.DateTime,
+            nullable=False,
+            server_default=sa.func.current_timestamp(),
+        ),
+        sa.Column("valid_to", sa.DateTime, nullable=False, server_default="infinity"),
     )
 
     # Create the history table
@@ -117,7 +122,8 @@ def upgrade():
     )
 
     # Create a trigger function for versioning
-    op.execute("""
+    op.execute(
+        """
     CREATE OR REPLACE FUNCTION raw_leave_data_versioning()
     RETURNS TRIGGER AS $$
     BEGIN
@@ -146,20 +152,25 @@ def upgrade():
         RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;
-    """)
+    """
+    )
 
     # Create the trigger for the main table
-    op.execute("""
+    op.execute(
+        """
     CREATE TRIGGER update_raw_leave_data_versioning
     BEFORE UPDATE ON raw_leave_data
     FOR EACH ROW
     EXECUTE FUNCTION raw_leave_data_versioning();
-    """)
+    """
+    )
 
 
 def downgrade():
     # Drop the trigger
-    op.execute("DROP TRIGGER IF EXISTS update_raw_leave_data_versioning ON raw_leave_data;")
+    op.execute(
+        "DROP TRIGGER IF EXISTS update_raw_leave_data_versioning ON raw_leave_data;"
+    )
 
     # Drop the versioning function
     op.execute("DROP FUNCTION IF EXISTS raw_leave_data_versioning();")

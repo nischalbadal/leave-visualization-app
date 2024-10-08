@@ -3,6 +3,7 @@ import psycopg2
 from config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from utils import log_pipeline_run
 
+
 def connect_to_db():
     conn = psycopg2.connect(
         host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD
@@ -42,11 +43,11 @@ def main():
             execute_sql_file(conn, file_path)
             print("Data Load successful.")
 
-        log_pipeline_run(conn, f"data-transfer", 'COMPLETED', 'etl-to-dw')
+        log_pipeline_run(conn, f"data-transfer", "COMPLETED", "etl-to-dw")
 
     except psycopg2.Error as e:
         print(f"Error loading data into 'allocations' table: {e}")
-        log_pipeline_run(conn, f"data-transfer", 'COMPLETED', 'etl-to-dw')
+        log_pipeline_run(conn, f"data-transfer", "COMPLETED", "etl-to-dw")
         conn.rollback()
     finally:
         conn.close()

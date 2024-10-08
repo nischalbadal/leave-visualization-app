@@ -4,6 +4,7 @@ import plotly.express as px
 import pandas as pd
 from config import API_URL
 
+
 def main():
     def get_jwt_token():
         return st.session_state.get("token")

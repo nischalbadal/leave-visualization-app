@@ -5,6 +5,7 @@ import plotly.express as px
 import requests
 from config import API_URL
 
+
 def main():
     def get_jwt_token():
         return st.session_state.get("token")
@@ -52,7 +53,7 @@ def main():
     # Table selection
     fact_table, selected_table = st.columns(2)
     with fact_table:
-        fact_table =st.write("Fact Table:", "fact_leave_request")
+        fact_table = st.write("Fact Table:", "fact_leave_request")
     with selected_table:
         selected_table = st.selectbox("Choose a Dimensions table:", tables)
 
@@ -64,7 +65,9 @@ def main():
             st.error("No data available to visualize.")
             return
 
-        st.subheader(f"Data from table: fact_leave_request join with **{selected_table}**")
+        st.subheader(
+            f"Data from table: fact_leave_request join with **{selected_table}**"
+        )
         st.dataframe(df, use_container_width=True)
 
         # Dynamic column loading for x and y axis
@@ -77,9 +80,10 @@ def main():
 
         with col3:
             # Chart type selection (added new chart types)
-            chart_type = st.selectbox("Select Chart Type:", [
-                "Pie Chart", "Line Graph", "Scatter Plot", "Histogram", "Area Chart"
-            ])
+            chart_type = st.selectbox(
+                "Select Chart Type:",
+                ["Pie Chart", "Line Graph", "Scatter Plot", "Histogram", "Area Chart"],
+            )
 
         fil_col, fil_val = st.columns(2)
 
@@ -90,7 +94,9 @@ def main():
             filter_value = st.text_input(f"Filter {filter_column} value:")
 
         if filter_value:
-            df = df[df[filter_column].astype(str).str.contains(filter_value, case=False)]
+            df = df[
+                df[filter_column].astype(str).str.contains(filter_value, case=False)
+            ]
 
         # Container to display multiple charts
         st.subheader("Visualization")
@@ -98,17 +104,27 @@ def main():
 
         # Create chart based on selections
         if chart_type == "Line Graph":
-            fig = px.line(df, x=x_axis, y=y_axis, title=f"{chart_type} of {y_axis} vs {x_axis}", markers=True)
+            fig = px.line(
+                df,
+                x=x_axis,
+                y=y_axis,
+                title=f"{chart_type} of {y_axis} vs {x_axis}",
+                markers=True,
+            )
             fig.update_layout(height=400)  # Set height for smaller chart
             chart_container.plotly_chart(fig)
 
         elif chart_type == "Pie Chart":
-            fig = px.pie(df, names=x_axis, values=y_axis, title=f"{chart_type} of {y_axis}")
+            fig = px.pie(
+                df, names=x_axis, values=y_axis, title=f"{chart_type} of {y_axis}"
+            )
             fig.update_layout(height=400)  # Set height for smaller chart
             chart_container.plotly_chart(fig)
 
         elif chart_type == "Scatter Plot":
-            fig = px.scatter(df, x=x_axis, y=y_axis, title=f"{chart_type} of {y_axis} vs {x_axis}")
+            fig = px.scatter(
+                df, x=x_axis, y=y_axis, title=f"{chart_type} of {y_axis} vs {x_axis}"
+            )
             fig.update_layout(height=400)
             chart_container.plotly_chart(fig)
 
@@ -118,14 +134,19 @@ def main():
             chart_container.plotly_chart(fig)
 
         elif chart_type == "Area Chart":
-            fig = px.area(df, x=x_axis, y=y_axis, title=f"{chart_type} of {y_axis} over {x_axis}")
+            fig = px.area(
+                df, x=x_axis, y=y_axis, title=f"{chart_type} of {y_axis} over {x_axis}"
+            )
             fig.update_layout(height=400)
             chart_container.plotly_chart(fig)
 
     # Footer
     st.markdown("### Filters")
-    st.markdown("Adjust the filters and selections to customize your data visualization.")
+    st.markdown(
+        "Adjust the filters and selections to customize your data visualization."
+    )
     st.info("Select the table and visualize the data interactively!")
+
 
 if __name__ == "__main__":
     main()
